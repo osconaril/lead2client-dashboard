@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead2Client - Mission Control</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--gray-900);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo { font-size: 1.5rem; font-weight: 700; }
+        .logo span { color: var(--primary); }
+        
+        .nav { display: flex; gap: 2rem; }
+        .nav a { color: #9ca3af; text-decoration: none; font-size: 0.9rem; }
+        .nav a:hover, .nav a.active { color: white; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label { font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; }
+        .metric-value { font-size: 2rem; font-weight: 700; color: var(--gray-900); }
+        .metric-change { font-size: 0.875rem; margin-top: 0.5rem; }
+        .metric-change.positive { color: var(--success); }
+        .metric-change.negative { color: var(--danger); }
+        
+        .section { margin-bottom: 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-title { font-size: 1.25rem; font-weight: 600; }
+        
+        .task-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .task-column {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .column-header {
+            font-weight: 600;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .badge {
+            background: var(--gray-100);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .task-card {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        .task-title { font-weight: 500; margin-bottom: 0.25rem; }
+        .task-meta { font-size: 0.75rem; color: #6b7280; }
+        
+        .priority-high { border-left: 4px solid var(--danger); }
+        .priority-med { border-left: 4px solid var(--warning); }
+        .priority-low { border-left: 4px solid var(--success); }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-active { background: #dbeafe; color: var(--primary-dark); }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-complete { background: #d1fae5; color: #065f46; }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover { background: var(--primary-dark); }
+        
+        .btn-outline {
+            border: 1px solid var(--gray-200);
+            color: var(--gray-800);
+        }
+        
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        
+        .quick-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .quick-link-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .quick-link-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .quick-link-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .icon-blue { background: #dbeafe; }
+        .icon-green { background: #d1fae5; }
+        .icon-purple { background: #ede9fe; }
+        .icon-orange { background: #ffedd5; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Lead<span>2</span>Client</div>
+        <nav class="nav">
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">VA Tasks</a>
+            <a href="#">Analytics</a>
+            <a href="#">Settings</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Weekly Appointments</div>
+                <div class="metric-value">8</div>
+                <div class="metric-change positive">↑ 2 from last week</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">New Clients This Week</div>
+                <div class="metric-value">3</div>
+                <div class="metric-change positive">↑ 1 from last week</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Cost Per Acquisition</div>
+                <div class="metric-value">$287</div>
+                <div class="metric-change positive">↓ $63 from target</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Weekly Ad Spend</div>
+                <div class="metric-value">$500</div>
+                <div class="metric-change">On budget</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Quick Access</h2>
+            </div>
+            <div class="quick-links">
+                <a href="#" class="quick-link-card">
+                    <div class="quick-link-icon icon-blue">👥</div>
+                    <h3>LinkedIn Prospects</h3>
+                    <p>35 qualified leads ready for outreach</p>
+                </a>
+                <a href="#" class="quick-link-card">
+                    <div class="quick-link-icon icon-green">💬</div>
+                    <h3>Reddit Tasks</h3>
+                    <p>10 high-intent posts to engage</p>
+                </a>
+                <a href="#" class="quick-link-card">
+                    <div class="quick-link-icon icon-purple">📊</div>
+                    <h3>Reports</h3>
+                    <p>Daily metrics and analytics</p>
+                </a>
+                <a href="#" class="quick-link-card">
+                    <div class="quick-link-icon icon-orange">📋</div>
+                    <h3>VA Guide</h3>
+                    <p>Daily execution instructions</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Active Work Streams</h2>
+                <a href="#" class="btn btn-outline">View All</a>
+            </div>
+            
+            <div class="task-board">
+                <div class="task-column">
+                    <div class="column-header">
+                        <span>🔴 Blocked</span>
+                        <span class="badge">2 tasks</span>
+                    </div>
+                    <div class="task-card priority-high">
+                        <div class="task-title">Reddit Ads Account Setup</div>
+                        <div class="task-meta">Waiting for: Ad account credentials</div>
+                        <span class="status-badge status-pending">Pending</span>
+                    </div>
+                    <div class="task-card priority-high">
+                        <div class="task-title">Facebook Business Manager</div>
+                        <div class="task-meta">Waiting for: Business verification</div>
+                        <span class="status-badge status-pending">Pending</span>
+                    </div>
+                </div>
+                
+                <div class="task-column">
+                    <div class="column-header">
+                        <span>🟡 In Progress</span>
+                        <span class="badge">3 tasks</span>
+                    </div>
+                    <div class="task-card priority-med">
+                        <div class="task-title">LinkedIn Prospecting</div>
+                        <div class="task-meta">VA: 10/50 connections sent today</div>
+                        <span class="status-badge status-active">Active</span>
+                    </div>
+                    <div class="task-card priority-med">
+                        <div class="task-title">Reddit Organic Engagement</div>
+                        <div class="task-meta">VA: 3/5 comments posted</div>
+                        <span class="status-badge status-active">Active</span>
+                    </div>
+                    <div class="task-card priority-med">
+                        <div class="task-title">Landing Page Optimization</div>
+                        <div class="task-meta">Conversion Engineer: Audit in progress</div>
+                        <span class="status-badge status-active">Active</span>
+                    </div>
+                </div>
+                
+                <div class="task-column">
+                    <div class="column-header">
+                        <span>🟢 Complete</span>
+                        <span class="badge">3 tasks</span>
+                    </div>
+                    <div class="task-card priority-low">
+                        <div class="task-title">Prospect Research</div>
+                        <div class="task-meta">20 insurance agents identified</div>
+                        <span class="status-badge status-complete">Done</span>
+                    </div>
+                    <div class="task-card priority-low">
+                        <div class="task-title"> outreach Templates</div>
+                        <div class="task-meta">15 personalized templates created</div>
+                        <span class="status-badge status-complete">Done</span>
+                    </div>
+                    <div class="task-card priority-low">
+                        <div class="task-title">VA Portal Setup</div>
+                        <div class="task-meta">HTML dashboard deployed</div>
+                        <span class="status-badge status-complete">Done</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
